@@ -25,6 +25,7 @@ class Asaplog extends CarrierModule
         $this->displayName = 'ASAP Log';
         $this->description = 'Entregas para lojas virtuais.';
         $this->confirmUninstall = 'Tem certeza que deseja desinstalar?';
+        $this->module_key = 'ae6d6652f18b581c24595c7ef7090681';
 
         if (Configuration::get('ASAPLOG_DEBUG') != null) {
             $this->debug = Configuration::get('ASAPLOG_DEBUG');
@@ -47,6 +48,8 @@ class Asaplog extends CarrierModule
             Configuration::updateValue('ASAPLOG_DEBUG', 'no');
         }
 
+        $this->informarCotacaoInvalida();
+
         return true;
     }
 
@@ -62,6 +65,8 @@ class Asaplog extends CarrierModule
     public function installCarriers()
     {
         try {
+            $this->informarCotacaoInvalida();
+
 //            $token = Configuration::get('ASAPLOG_TOKEN');
             $carrier = new Carrier();
             $carrier->name = 'ASAP Log';
@@ -257,7 +262,7 @@ class Asaplog extends CarrierModule
 
         if ($chave == null || $chave == '') {
             $this->logMessage("Chave não cadastrada");
-            $this->informarCotacaoInvalida(Configuration::get('PS_SHOP_NAME'), _PS_BASE_URL_);
+            $this->informarCotacaoInvalida();
             return false;
         }
 
@@ -335,12 +340,12 @@ class Asaplog extends CarrierModule
         }
     }
 
-    public function informarCotacaoInvalida($storeName, $baseUrl)
+    public function informarCotacaoInvalida()
     {
         try {
             $ch = curl_init();
 
-            $url = 'https://app.asaplog.com.br/webservices/v1/informarCotacaoInvalida?plataforma=MAGENTO&nome=' . $storeName . '&url=' . $baseUrl;
+            $url = 'https://app.asaplog.com.br/webservices/v1/informarCotacaoInvalida?plataforma=PRESTASHOP&nome=' . Configuration::get('PS_SHOP_NAME') . '&url=' . _PS_BASE_URL_;
             $this->logMessage($url);
 
             curl_setopt($ch, CURLOPT_URL, $url);
